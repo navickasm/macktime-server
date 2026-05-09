@@ -29,11 +29,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/repos/macktime-api
+            cd ~/repos/macktime-server
 
             git pull origin main
 
             npm install
             npm run build
 
-            pm2 restart macktime-api --update-env || pm2 start dist/index.js --name macktime-api
+            pm2 restart macktime-server --update-env || pm2 start dist/index.js --name macktime-server
