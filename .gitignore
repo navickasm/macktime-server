@@ -1,0 +1,19 @@
+# Project Files
+res/database.db
+
+# TypeScript
+/tmp
+/out-tsc
+dist/
+
+# Node
+package-lock.json
+/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/.pnp
+.pnp.js
+
+# IDE-specific
+.vscode/*

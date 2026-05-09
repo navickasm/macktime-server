@@ -1,0 +1,17 @@
+; Macktime FinishLynx Script (v0.1)
+; (C) 2026 Mack Navickas
+;
+; Name, Heat, & Time
+; ---------------------------------
+
+;;TimeRunning
+\11\01%s\03
+
+;;TimeStopped
+\11\01%s\03
+
+;;ResultsHeader
+; \x01 is our marker for Event Name
+\13\02\01%s\03
+; \x02 is our marker for Heat Number
+\13\06\02%s\03
