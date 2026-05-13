@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macktime - Results</title>
+    <style>
+      body {
+        background-color: #4a4e69;
+        color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 50px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        margin: 0 0 10px 0;
+      }
+
+      .company-header {
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        color: #d1d1d1;
+      }
+
+      /* Simple List Styling */
+      .source-list {
+        width: 100%;
+        max-width: 600px;
+      }
+
+      .source-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .source-name {
+        font-size: 1.1rem;
+      }
+
+      /* Chip Styling */
+      .chip {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        text-transform: capitalize;
+      }
+
+      .status-alive {
+        background-color: #0b1a13;
+        color: #8bc3a3;
+      }
+
+      .status-disconnected {
+        background-color: #1a1a1a;
+        color: #a1a1a1;
+      }
+
+      .status-error {
+        background-color: #2a0f0f;
+        color: #f87171;
+      }
+    </style>
+</head>
+<body>
+
+<h1 id="title">Results</h1>
+<div id="companyName" class="company-header">Loading...</div>
+
+<div id="sourceList" class="source-list">
+</div>
+
+<script>
+    // const URL = "https://macktime.thisistheip.com";
+    const URL = "http://localhost:8080"
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            const response = await fetch(URL + '/auth/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const responseData = await response.json();
+            if (!response.ok || responseData.status !== 'authorized') {
+                window.location.href = 'index.html';
+            }
+        }
+    });
+
+    async function fetchUserData() {
+        try {
+            const response = await fetch(URL + '/user', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            });
+
+            const data = await response.json();
+
+            document.getElementById('companyName').textContent = data.name;
+
+            const sourceList = document.getElementById('sourceList');
+            sourceList.innerHTML = '';
+
+            if (data.sources.length === 0) {
+                sourceList.textContent = 'No boards available.';
+            } else {
+                data.sources.forEach(source => {
+                    const div = document.createElement('div');
+                    div.className = 'source-item';
+                    div.innerHTML = `
+            <span class="source-name">${source.name}</span>
+            <span class="chip status-${source.status}">${source.status}</span>
+        `;
+                    sourceList.appendChild(div);
+                });
+            }
+
+        } catch (err) {
+            document.getElementById('companyName').textContent = "Error loading data.";
+            console.error(err);
+        }
+    }
+
+    fetchUserData();
+</script>
+</body>
+</html>

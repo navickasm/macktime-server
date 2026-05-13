@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macktime Login - Standard Font</title>
+    <style>
+      body {
+        background-color: #4a4e69;
+        color: white;
+        /* Reverted to the original simple font stack */
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 4rem;
+        margin-bottom: 5px;
+      }
+
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+      }
+
+      /* Company Selection Buttons */
+      .company-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .company-btn {
+        background-color: transparent;
+        border: 2px solid white;
+        border-radius: 10px;
+        width: 180px;
+        height: 120px;
+        cursor: pointer;
+        color: white;
+        font-size: 1.1rem;
+        transition: background-color 0.2s;
+      }
+
+      .company-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .company-btn:focus,
+      .company-btn.selected {
+        background-color: white;
+        color: #4a4e69;
+        outline: none;
+      }
+
+      .company-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* Login Row Styles */
+      .login-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      input[type="password"] {
+        padding: 10px;
+        font-size: 1.1rem;
+        border: none;
+        width: 240px;
+      }
+
+      .login-submit {
+        background-color: #ffffff;
+        color: #000000; /* High contrast for the button text */
+        border: none;
+        padding: 10px 25px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+
+      .login-submit:hover {
+        opacity: 0.9;
+      }
+    </style>
+</head>
+<body>
+
+<h1>macktime</h1>
+<p>Select your company:</p>
+
+<div class="company-container">
+    <button class="company-btn"><img src="img/pfv.png" alt="PFv Performance Logo" class="company-img"></button>
+    <button class="company-btn"><img src="img/st.png" alt="Sigma Timing Logo" class="company-img"></button>
+</div>
+
+<form class="login-row">
+    <input type="password" placeholder="password" required>
+    <button type="submit" class="login-submit">login</button>
+</form>
+
+<script>
+    // const URL = "https://macktime.thisistheip.com";
+    const URL = "http://localhost:8080"
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            const response = await fetch(URL + '/auth/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const responseData = await response.json();
+            if (response.ok && responseData.status === 'authorized') {
+                window.location.href = 'main.html';
+            }
+        }
+    });
+
+    document.querySelectorAll('.company-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.company-btn').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        });
+    });
+
+    document.querySelector('.login-row').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const selectedCompany = document.querySelector('.company-btn.selected');
+        if (!selectedCompany) {
+            alert('Please select a company.');
+            return;
+        }
+
+        const companyId = Array.from(document.querySelectorAll('.company-btn')).indexOf(selectedCompany) + 1;
+        const password = document.querySelector('input[type="password"]').value;
+
+        const response = await fetch(URL + '/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ companyId, password }),
+        });
+
+        if (response.ok) {
+            const { token } = await response.json();
+            localStorage.setItem('authToken', token);
+            window.location.href = 'main.html';
+        } else if (response.status === 503 || response.status === 401) {
+            alert('Error: Unable to authenticate. Please try again.');
+        } else {
+            alert('An unexpected error occurred.');
+        }
+    });
+</script>
+
+</body>
+</html>
