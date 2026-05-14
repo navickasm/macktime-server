@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json());
 app.use(require('cors')({
-    origin: ['https://macktime.thisistheip.com', 'http://localhost:8080', 'http://localhost:63343', 'https://navickasm.github.io/macktime-server']
+    origin: ['https://macktime.thisistheip.com', 'http://localhost:8080', 'http://localhost:63343', 'https://navickasm.github.io']
 }));
 
 app.use((req, res, next) => {
